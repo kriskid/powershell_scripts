@@ -93,6 +93,7 @@ $table += "</tr> `n`r"
 
 }
 $table += "</table> `n`r"
+$table += "<br> `n`r"
 $table
 }
 
@@ -122,7 +123,24 @@ $htmlstart = @"
   width: 100%;
   border: 1px solid #ddd;
   font-size: 18px;
+  padding: 12px;
 }
+
+#titletable {
+  border-collapse: collapse;
+  width: 100%;
+  border: 1px solid #ddd;
+  font-size: 18px;
+  padding: 12px;
+  }
+
+#titletable th {
+    background-color: #007395;
+    color: #ffffff;
+      text-align: center;
+      padding: 12px;
+      border: .1px solid black
+ }
 
 #myTable th {
 background-color: #007395;
@@ -177,9 +195,25 @@ $htmlend = @"
 </html>
 "@
 
+function headertable{
+  Param(
+    [Parameter(Mandatory=$True)] $headertitle
+  )
+  $title = @"
+  <table id=titletable>
+  <tr>
+  <th>
+  $headertitle
+  </th>
+  </tr>
+  </table>
+"@
+
+$title
+}
 
 #main
-$htmlstart | out-file $outputfile
+
 
 $tickerdata = foreach ($item in  $(import-csv C:\Users\user\Desktop\Near_52W_Lows_26_7_2023.csv)){
   
@@ -196,7 +230,24 @@ $tickerdata = foreach ($item in  $(import-csv C:\Users\user\Desktop\Near_52W_Low
 
 }
 
+$demo_project = foreach($item in $(import-csv C:\Users\user\Desktop\demo_projects.csv)){
+  $colortheticker = $(if ($item.'STATUS' -eq 'Open'){"red"}elseif($item.STATUS -eq "pending"){"green"}else{"None"})
+  
 
+  [PSCustomObject]@{
+    Project = $item.Project
+    TaskName = $item.TASK_NAME
+    STATUS = $item.STATUS
+    BUDGET = [int]$item.BUDGET
+   color = $colortheticker
+  }
+}
 
-printtable -inputdata $tickerdata |out-file $outputfile -Append
+$htmlstart | out-file $outputfile
+headertable -headertitle "ROI Data"|out-file $outputfile -Append
+printtable -inputdata $($tickerdata |Sort-Object Return_on_investment) |out-file $outputfile -Append
+
+headertable -headertitle "DEMO PROJECT"|out-file $outputfile -Append
+printtable -inputdata $($demo_project |Sort-Object BUDGET) |out-file $outputfile -Append
+
 $htmlend | out-file $outputfile -Append
