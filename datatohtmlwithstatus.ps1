@@ -101,6 +101,7 @@ $htmlstart = @"
 <!DOCTYPE html>
 <html>
 <head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 * {
   box-sizing: border-box;
@@ -244,6 +245,8 @@ $demo_project = foreach($item in $(import-csv C:\Users\user\Desktop\demo_project
 }
 
 $htmlstart | out-file $outputfile
+
+
 headertable -headertitle "ROI Data"|out-file $outputfile -Append
 printtable -inputdata $($tickerdata |Sort-Object Return_on_investment) |out-file $outputfile -Append
 
